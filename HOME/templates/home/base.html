@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Panel | Sistema de Gestión{% endblock %}</title>
+
+  <!-- Tailwind + Flowbite CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+
+  <!-- Iconos opcionales -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    /* Fondo gris claro por defecto */
+    body {
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow fixed top-0 left-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+      <a href="{% url 'home_dashboard' %}" class="text-xl font-bold text-purple-700 hover:text-purple-900">
+        Sistema de Gestión
+      </a>
+      <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-600 hidden sm:inline">Hola, {{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="text-sm text-red-600 hover:underline">Cerrar sesión</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Espacio debajo del navbar -->
+  <div class="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+    <!-- Contenido dinámico -->
+    {% block content %}
+    {% endblock %}
+
+  </div>
+<!-- Tailwind + Flowbite CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+<!-- JS de Flowbite -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+</body>
+</html>
