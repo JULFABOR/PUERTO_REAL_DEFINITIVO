@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
 ]
+TAILWIND_APP_NAME = 'theme'
+
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -125,4 +128,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-TAILWIND_APP_NAME = 'theme'
+STATICFILES_DIRS = [
+    BASE_DIR / "theme" / "static",
+]

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,20 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Panel | Sistema de Gestión{% endblock %}</title>
 
-  <!-- Tailwind + Flowbite CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+  <!-- CSS compilado de Tailwind + Flowbite -->
+  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
 
   <!-- Iconos opcionales -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-
-  <style>
-    /* Fondo gris claro por defecto */
-    body {
-      background-color: #f9fafb;
-    }
-  </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800 bg-gray-50">
 
   <!-- Navbar -->
   <nav class="bg-white shadow fixed top-0 left-0 w-full z-50">
@@ -40,10 +34,31 @@
     {% block content %}
     {% endblock %}
 
+    <!-- Botón para probar Flowbite -->
+    <div class="mt-10 text-center">
+      <button data-modal-target="default-modal" data-modal-toggle="default-modal" class="bg-blue-500 px-4 py-2 rounded text-white">
+        Abrir modal
+      </button>
+    </div>
+
+    <!-- Modal Flowbite -->
+    <div id="default-modal" tabindex="-1" aria-hidden="true"
+         class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div class="bg-white p-6 rounded shadow w-80">
+        <h3 class="text-lg font-semibold text-gray-800">¡Funciona Flowbite!</h3>
+        <p class="mt-2 text-sm text-gray-600">Este es un modal de prueba.</p>
+        <div class="text-right mt-4">
+          <button data-modal-hide="default-modal"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
-<!-- Tailwind + Flowbite CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
-<!-- JS de Flowbite -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
+  <!-- Flowbite JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>
 </html>
