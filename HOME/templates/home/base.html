@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Sistema de Gestión{% endblock %}</title>
+
+  <!-- TailwindCSS compilado -->
+  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}" />
+
+  <!-- Flowbite CDN (JS + componentes UI) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
+  <!-- Iconos opcionales -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- NAVBAR -->
+  <nav class="bg-white shadow z-50 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <a href="{% url 'home_dashboard' %}" class="text-xl font-bold text-purple-700 hover:text-purple-900">
+        Sistema de Gestión
+      </a>
+
+      <div class="flex items-center space-x-4">
+        {% if user.is_authenticated %}
+          <span class="text-sm hidden sm:inline">Hola, {{ user.username }}</span>
+          <a href="{% url 'logout' %}" class="text-sm text-red-600 hover:underline">Cerrar sesión</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="text-sm text-blue-600 hover:underline">Iniciar sesión</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}
+    <!-- Contenido de cada página va acá -->
+    {% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white shadow mt-8 py-4 text-center text-sm text-gray-500">
+    © {{ year|default:2025 }} - Sistema de Gestión | Proyecto Final
+  </footer>
+
+</body>
+</html>
