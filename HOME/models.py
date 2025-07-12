@@ -39,7 +39,7 @@ class Productos_Descartados(models.Model):
     def __str__(self):
         return f"{self.producto} - {self.cantidad} vencido(s)"
 class Clientes(models.Model):
-    user_cliente = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_cliente = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cliente')
     id_cliente = models.BigAutoField(primary_key=True)
     dni_cliente = models.CharField(max_length=50)
     telefono_cliente = models.CharField(max_length=50)
@@ -47,7 +47,7 @@ class Clientes(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 class Empleados(models.Model):
-    user_empleado = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_empleado = models.OneToOneField(User, on_delete=models.CASCADE, related_name='empleado')
     id_empleado = models.BigAutoField(primary_key=True)
     dni_empleado = models.CharField(50)
     telefono_empleado = models.CharField(max_length=50)

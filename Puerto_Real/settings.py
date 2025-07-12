@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'HOME.context_processors.user_role',
             ],
         },
     },
@@ -131,3 +132,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "theme" / "static",
 ]
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home_dashboard'
+LOGOUT_REDIRECT_URL = 'login'
