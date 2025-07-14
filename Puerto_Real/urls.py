@@ -22,3 +22,13 @@ urlpatterns = [
     path('', include('HOME.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
+# Aquí se incluyen las URLs de la app 'caja'
+from django.contrib import admin
+from django.urls import path, include # Asegúrate de que 'include' esté aquí
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('caja/', include('caja.urls')), # ¡Añade esta línea!
+    # ... otras URLs de tu proyecto
+]
