@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; }
+    h2 { color: #4B0082; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h2>Listado de Proveedores</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Razón Social</th>
+        <th>CUIT</th>
+        <th>Teléfono</th>
+        <th>Correo</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in proveedores %}
+      <tr>
+        <td>{{ p.nombre_proveedor }}</td>
+        <td>{{ p.razon_social_proveedor }}</td>
+        <td>{{ p.cuit_proveedor }}</td>
+        <td>{{ p.telefono_proveedor }}</td>
+        <td>{{ p.correo_proveedor }}</td>
+        <td>{{ p.estado_proveedor.nombre_estado }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

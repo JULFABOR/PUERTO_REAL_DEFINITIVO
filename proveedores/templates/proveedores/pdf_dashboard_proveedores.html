@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; }
+    h2 { color: #4B0082; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+    th { background-color: #eee; }
+    .box { margin-top: 10px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Dashboard de {{ proveedor.nombre_proveedor }}</h2>
+
+  <div class="box"><strong>Total gastado:</strong> ${{ total_gastado|floatformat:2 }}</div>
+  <div class="box"><strong>Cantidad de compras:</strong> {{ cantidad_compras }}</div>
+  <div class="box"><strong>Última compra:</strong> 
+    {% if ultima_compra %}
+      {{ ultima_compra.fecha_compra|date:"d/m/Y H:i" }}
+    {% else %}
+      No registrada
+    {% endif %}
+  </div>
+
+  <h4>Totales por mes (últimos 6 meses)</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th>Total comprado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mes, total in meses|zip:totales %}
+      <tr>
+        <td>{{ mes }}</td>
+        <td>${{ total|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

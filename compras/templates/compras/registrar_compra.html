@@ -1,87 +1,126 @@
-<!-- templates/compras/registrar_compra.html -->
 {% extends "home/base.html" %}
+{% load static %}
+
+{% block title %}Registrar Compra{% endblock %}
+
 {% block content %}
+<div class="max-w-5xl mx-auto bg-white p-8 rounded-lg shadow">
+  <h1 class="text-2xl font-bold text-purple-700 mb-6">Registrar nueva compra</h1>
 
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-  <h2 class="text-2xl font-bold mb-4 text-gray-700">Registrar compra</h2>
-
-  <form method="post">
+  <form id="form-compra" method="POST">
     {% csrf_token %}
 
-    <!-- Proveedor -->
-    <div class="mb-4">
-      <label for="proveedor_id" class="block mb-2 text-sm font-medium text-gray-700">Proveedor</label>
-      <select id="proveedor_id" name="proveedor_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5" required>
+    <!-- PROVEEDOR -->
+    <div class="mb-6">
+      <label for="proveedor" class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+      <select name="proveedor" id="proveedor" required
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600">
+        <option value="">Seleccione un proveedor</option>
         {% for proveedor in proveedores %}
-          <option value="{{ proveedor.id_proveedor }}">{{ proveedor.nombre_proveedor }}</option>
+          <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
         {% endfor %}
       </select>
     </div>
 
-    <!-- Productos -->
-    <div>
-      <h3 class="text-lg font-semibold mb-2 text-gray-600">Productos</h3>
-      <table id="tabla-productos" class="w-full text-sm text-left text-gray-600 mb-4">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+    <!-- PRODUCTOS -->
+    <div class="overflow-x-auto mb-6">
+      <table class="w-full text-sm text-left text-gray-700 border">
+        <thead class="text-xs bg-gray-100 text-gray-600 uppercase">
           <tr>
-            <th class="px-3 py-2">Producto</th>
-            <th class="px-3 py-2">Cantidad</th>
-            <th class="px-3 py-2">Precio unitario</th>
-            <th class="px-3 py-2 text-center">Eliminar</th>
+            <th class="px-4 py-2">Producto</th>
+            <th class="px-4 py-2">Cantidad</th>
+            <th class="px-4 py-2">Precio unitario</th>
+            <th class="px-4 py-2">Subtotal</th>
+            <th class="px-4 py-2 text-center">Acción</th>
           </tr>
         </thead>
-        <tbody>
-          <tr class="producto-row bg-white border-b">
-            <td class="px-3 py-2">
-              <select name="producto_id[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 w-full" required>
-                {% for producto in productos %}
-                  <option value="{{ producto.id_producto }}">{{ producto.nombre_producto }}</option>
-                {% endfor %}
-              </select>
-            </td>
-            <td class="px-3 py-2">
-              <input type="number" name="cantidad[]" min="1" class="bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 w-full" required>
-            </td>
-            <td class="px-3 py-2">
-              <input type="number" name="precio_unitario[]" min="0" step="0.01" class="bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 w-full" required>
-            </td>
-            <td class="px-3 py-2 text-center">
-              <button type="button" onclick="eliminarFila(this)" class="text-red-600 hover:text-red-800">❌</button>
-            </td>
-          </tr>
+        <tbody id="detalle-compra-body">
+          <!-- Las filas se agregarán dinámicamente con JS -->
         </tbody>
       </table>
-
-      <div class="flex justify-between items-center mb-4">
-        <button type="button" onclick="agregarFila()" class="text-purple-600 hover:underline font-medium text-sm">➕ Agregar producto</button>
-      </div>
     </div>
 
-    <!-- Botón de envío -->
-    <div class="mt-6">
-      <button type="submit" class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+    <!-- BOTÓN AGREGAR PRODUCTO -->
+    <div class="mb-6">
+      <button type="button" id="agregar-producto"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
+        + Agregar producto
+      </button>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="flex justify-end mb-6">
+      <p class="text-lg font-semibold">Total: $ <span id="total-general">0.00</span></p>
+      <input type="hidden" name="total_compra" id="total_compra" value="0.00" />
+    </div>
+
+    <!-- BOTÓN SUBMIT -->
+    <div class="flex justify-end">
+      <button type="submit"
+        class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded transition duration-200">
         Registrar compra
       </button>
     </div>
   </form>
 </div>
 
-<!-- Scripts -->
+<!-- JavaScript para agregar filas dinámicamente -->
 <script>
-function agregarFila() {
-  const fila = document.querySelector('.producto-row');
-  const nueva = fila.cloneNode(true);
-  nueva.querySelectorAll('input').forEach(input => input.value = '');
-  document.querySelector('#tabla-productos tbody').appendChild(nueva);
-}
+  let contadorFilas = 0;
 
-function eliminarFila(btn) {
-  const row = btn.closest('tr');
-  const totalFilas = document.querySelectorAll('.producto-row').length;
-  if (totalFilas > 1) {
-    row.remove();
+  document.getElementById('agregar-producto').addEventListener('click', () => {
+    const tbody = document.getElementById('detalle-compra-body');
+    const fila = document.createElement('tr');
+    fila.innerHTML = `
+      <td class="px-4 py-2">
+        <input type="text" name="producto_${contadorFilas}" required
+          class="w-full border border-gray-300 rounded px-2 py-1" />
+      </td>
+      <td class="px-4 py-2">
+        <input type="number" name="cantidad_${contadorFilas}" min="1" value="1" required
+          class="w-full border border-gray-300 rounded px-2 py-1 cantidad" />
+      </td>
+      <td class="px-4 py-2">
+        <input type="number" name="precio_${contadorFilas}" min="0" step="0.01" value="0.00" required
+          class="w-full border border-gray-300 rounded px-2 py-1 precio" />
+      </td>
+      <td class="px-4 py-2">
+        <span class="subtotal">0.00</span>
+      </td>
+      <td class="px-4 py-2 text-center">
+        <button type="button" class="text-red-500 remove">🗑</button>
+      </td>
+    `;
+    tbody.appendChild(fila);
+    contadorFilas++;
+    actualizarTotales();
+  });
+
+  document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('cantidad') || e.target.classList.contains('precio')) {
+      actualizarTotales();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove')) {
+      e.target.closest('tr').remove();
+      actualizarTotales();
+    }
+  });
+
+  function actualizarTotales() {
+    let total = 0;
+    const filas = document.querySelectorAll('#detalle-compra-body tr');
+    filas.forEach(fila => {
+      const cantidad = parseFloat(fila.querySelector('.cantidad')?.value || 0);
+      const precio = parseFloat(fila.querySelector('.precio')?.value || 0);
+      const subtotal = cantidad * precio;
+      fila.querySelector('.subtotal').textContent = subtotal.toFixed(2);
+      total += subtotal;
+    });
+    document.getElementById('total-general').textContent = total.toFixed(2);
+    document.getElementById('total_compra').value = total.toFixed(2);
   }
-}
 </script>
-
 {% endblock %}
