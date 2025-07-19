@@ -1,0 +1,60 @@
+{% extends 'home/base.html' %}
+{% block title %}Registrar Proveedor{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+  <h2 class="text-2xl font-bold text-purple-700 mb-6">Registrar nuevo proveedor</h2>
+
+  <form method="POST" action="{% url 'registrar_proveedor' %}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% csrf_token %}
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+      <input type="text" name="nombre_proveedor" required
+             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Razón social</label>
+      <input type="text" name="razon_social_proveedor" required
+             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+      <input type="text" name="telefono_proveedor"
+             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">CUIT</label>
+      <input type="text" name="cuit_proveedor" required
+             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+      <input type="email" name="correo_proveedor"
+             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+      <select name="estado_proveedor" required
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600">
+        <option value="">Seleccione una opción</option>
+        {% for estado in estados %}
+          <option value="{{ estado.id }}">{{ estado.nombre_estado|capfirst }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="md:col-span-2 text-right mt-4">
+      <button type="submit"
+              class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition">
+        Registrar proveedor
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

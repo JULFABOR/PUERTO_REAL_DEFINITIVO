@@ -1,0 +1,173 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Historial de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6 bg-white shadow rounded-lg">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-purple-700">Historial de compras</h1>
+
+    <div class="space-x-3">
+      <a href="{% url 'exportar_compras_csv' %}" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">
+        Exportar CSV
+      </a>
+      <a href="{% url 'exportar_compras_pdf' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        Exportar PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <form method="GET" class="flex flex-wrap gap-4 mb-6 items-end">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+      <select name="proveedor" class="border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600">
+        <option value="">Todos</option>
+        {% for proveedor in proveedores %}
+          <option value="{{ proveedor.id }}"
+            {% if filtros.proveedor == proveedor.id|stringformat:"s" %}selected{% endif %}>
+            {{ proveedor.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+      <input type="date" name="fecha_inicio" value="{{ filtros.fecha_inicio }}"
+        class="border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+      <input type="date" name="fecha_fin" value="{{ filtros.fecha_fin }}"
+        class="border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+      <select name="orden" class="border-gray-300 rounded-md shadow-sm focus:ring-purple-600 focus:border-purple-600">
+        <option value="desc" {% if filtros.orden == 'desc' %}selected{% endif %}>Más recientes primero</option>
+        <option value="asc" {% if filtros.orden == 'asc' %}selected{% endif %}>Más antiguos primero</option>
+      </select>
+    </div>
+
+    <div>
+      <button type="submit"
+        class="mt-1.5 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition">
+        Filtrar
+      </button>
+    </div>
+  </form>
+
+  <!-- Tabla -->
+  {% if compras %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-100 text-gray-700 text-xs uppercase">
+          <tr>
+            <th class="px-4 py-2 text-left">ID</th>
+            <th class="px-4 py-2 text-left">Proveedor</th>
+            <th class="px-4 py-2 text-left">Fecha</th>
+            <th class="px-4 py-2 text-left">Total</th>
+            <th class="px-4 py-2 text-left">Estado</th>
+            <th class="px-4 py-2 text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for compra in compras %}
+          <tr>
+            <td class="px-4 py-2">{{ compra.id }}</td>
+            <td class="px-4 py-2">{{ compra.proveedor.nombre }}</td>
+            <td class="px-4 py-2">{{ compra.fecha_compra|date:"d/m/Y H:i" }}</td>
+            <td class="px-4 py-2">${{ compra.total_compra }}</td>
+            <td class="px-4 py-2 capitalize">
+              <span class="px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs">
+                {{ compra.estado }}
+              </span>
+            </td>
+            <td class="px-4 py-2 text-center space-x-2">
+              <a href="#" class="text-blue-600 hover:underline text-sm">Ver</a>
+              <a href="#"
+                class="text-red-600 hover:underline text-sm"
+                data-modal-target="modal-anular"
+                data-modal-toggle="modal-anular"
+                data-url="{% url 'anular_compra' compra.id %}"
+                onclick="setAnularUrl(this)">
+                Anular
+              </a>
+              <a href="{% url 'exportar_compras_pdf' %}" class="text-green-600 hover:underline text-sm">PDF</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+        <!-- Paginación -->
+    <div class="mt-6 flex justify-center">
+      <nav class="inline-flex items-center space-x-1">
+        {% if compras.has_previous %}
+          <a href="?{% if filtros.proveedor %}proveedor={{ filtros.proveedor }}&{% endif %}
+                    {% if filtros.fecha_inicio %}fecha_inicio={{ filtros.fecha_inicio }}&{% endif %}
+                    {% if filtros.fecha_fin %}fecha_fin={{ filtros.fecha_fin }}&{% endif %}
+                    {% if filtros.orden %}orden={{ filtros.orden }}&{% endif %}
+                    page={{ compras.previous_page_number }}"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Anterior</a>
+        {% endif %}
+
+        {% for num in compras.paginator.page_range %}
+          {% if compras.number == num %}
+            <span class="px-3 py-1 bg-purple-600 text-white rounded">{{ num }}</span>
+          {% else %}
+            <a href="?{% if filtros.proveedor %}proveedor={{ filtros.proveedor }}&{% endif %}
+                      {% if filtros.fecha_inicio %}fecha_inicio={{ filtros.fecha_inicio }}&{% endif %}
+                      {% if filtros.fecha_fin %}fecha_fin={{ filtros.fecha_fin }}&{% endif %}
+                      {% if filtros.orden %}orden={{ filtros.orden }}&{% endif %}
+                      page={{ num }}"
+              class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if compras.has_next %}
+          <a href="?{% if filtros.proveedor %}proveedor={{ filtros.proveedor }}&{% endif %}
+                    {% if filtros.fecha_inicio %}fecha_inicio={{ filtros.fecha_inicio }}&{% endif %}
+                    {% if filtros.fecha_fin %}fecha_fin={{ filtros.fecha_fin }}&{% endif %}
+                    {% if filtros.orden %}orden={{ filtros.orden }}&{% endif %}
+                    page={{ compras.next_page_number }}"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Siguiente</a>
+        {% endif %}
+      </nav>
+    </div>
+  {% else %}
+    <p class="text-gray-600">No hay compras registradas aún.</p>
+  {% endif %}
+</div>
+
+<!-- Modal de confirmación -->
+<div id="modal-anular" tabindex="-1"
+     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto h-full bg-black bg-opacity-50">
+  <div class="relative w-full max-w-md mx-auto mt-24">
+    <div class="relative bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-800">Confirmar anulación</h3>
+      <p class="mt-2 text-sm text-gray-600">¿Estás seguro de que querés anular esta compra? Esta acción no se puede deshacer.</p>
+      <div class="flex justify-end mt-6 space-x-3">
+        <button data-modal-hide="modal-anular" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+          Cancelar
+        </button>
+        <a id="anular-link" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+          Sí, anular
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script para setear la URL en el modal -->
+<script>
+  function setAnularUrl(element) {
+    const url = element.getAttribute('data-url');
+    document.getElementById('anular-link').setAttribute('href', url);
+  }
+</script>
+{% endblock %}

@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
     'caja',
+    'productos',
+    'control_financiero',
+    'control_stock',
 ]
 TAILWIND_APP_NAME = 'theme'
 
@@ -69,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'HOME.context_processors.user_role',
             ],
         },
     },
@@ -82,8 +86,12 @@ WSGI_APPLICATION = 'Puerto_Real.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_puerto_real',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -132,3 +140,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "theme" / "static",
 ]
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home_dashboard'
+LOGOUT_REDIRECT_URL = 'login'

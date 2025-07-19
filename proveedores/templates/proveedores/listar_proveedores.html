@@ -1,0 +1,126 @@
+{% extends 'home/base.html' %}
+{% block title %}Proveedores{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6 bg-white shadow rounded-lg">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold text-purple-700">Listado de proveedores</h1>
+    <a href="{% url 'registrar_proveedor' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+      + Registrar nuevo
+    </a>
+  </div>
+<div class="space-x-3">
+  <a href="{% url 'exportar_proveedores_csv' %}" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">
+    Exportar CSV
+  </a>
+  <a href="{% url 'exportar_proveedores_pdf' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    Exportar PDF
+  </a>
+</div>
+
+  <!-- Formulario de búsqueda -->
+  <form method="GET" class="mb-4 flex">
+    <input type="text" name="q" placeholder="Buscar por nombre o CUIT" value="{{ query }}"
+           class="flex-grow border-gray-300 rounded-l px-4 py-2 focus:ring-purple-600 focus:border-purple-600" />
+    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-r hover:bg-purple-700">
+      Buscar
+    </button>
+  </form>
+
+  <!-- Tabla -->
+  {% if proveedores %}
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+        <tr>
+          <th class="px-4 py-2 text-left">Nombre</th>
+          <th class="px-4 py-2 text-left">Razón social</th>
+          <th class="px-4 py-2 text-left">CUIT</th>
+          <th class="px-4 py-2 text-left">Teléfono</th>
+          <th class="px-4 py-2 text-left">Estado</th>
+          <th class="px-4 py-2 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for proveedor in proveedores %}
+        <tr>
+          <td class="px-4 py-2">{{ proveedor.nombre_proveedor }}</td>
+          <td class="px-4 py-2">{{ proveedor.razon_social_proveedor }}</td>
+          <td class="px-4 py-2">{{ proveedor.cuit_proveedor }}</td>
+          <td class="px-4 py-2">{{ proveedor.telefono_proveedor }}</td>
+          <td class="px-4 py-2">{{ proveedor.estado_proveedor.nombre_estado|capfirst }}</td>
+          <td class="px-4 py-2 text-center space-x-2">
+            <a href="{% url 'editar_proveedor' proveedor.id_proveedor %}"
+                class="text-blue-600 hover:underline text-sm">Editar</a>
+
+            <a href="#" class="text-red-600 hover:underline text-sm"
+                data-modal-target="modal-eliminar"
+                data-modal-toggle="modal-eliminar"
+                data-url="{% url 'eliminar_proveedor' proveedor.id_proveedor %}"
+                onclick="setEliminarUrl(this)">
+                Eliminar
+            </a>
+            <a href="{% url 'compras_por_proveedor' proveedor.id_proveedor %}"
+   class="text-indigo-600 hover:underline text-sm">Compras</a>
+             <a href="{% url 'dashboard_proveedor' proveedor.id_proveedor %}"
+   class="text-violet-600 hover:underline text-sm">Dashboard</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="mt-6 flex justify-center">
+    <nav class="inline-flex items-center space-x-1">
+      {% if proveedores.has_previous %}
+        <a href="?q={{ query }}&page={{ proveedores.previous_page_number }}"
+           class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Anterior</a>
+      {% endif %}
+
+      {% for num in proveedores.paginator.page_range %}
+        {% if proveedores.number == num %}
+          <span class="px-3 py-1 bg-purple-600 text-white rounded">{{ num }}</span>
+        {% else %}
+          <a href="?q={{ query }}&page={{ num }}"
+             class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if proveedores.has_next %}
+        <a href="?q={{ query }}&page={{ proveedores.next_page_number }}"
+           class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Siguiente</a>
+      {% endif %}
+    </nav>
+  </div>
+
+  {% else %}
+    <p class="text-gray-600">No se encontraron proveedores.</p>
+  {% endif %}
+</div>
+<!-- Modal de confirmación Flowbite -->
+<div id="modal-eliminar" tabindex="-1" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white p-6 rounded shadow w-11/12 max-w-md">
+    <h3 class="text-lg font-semibold">¿Eliminar proveedor?</h3>
+    <p class="text-sm text-gray-600 mt-2">Esta acción marcará el proveedor como eliminado y lo ocultará del sistema.</p>
+
+    <div class="flex justify-end mt-6 space-x-3">
+      <button data-modal-hide="modal-eliminar" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+        Cancelar
+      </button>
+      <a id="eliminar-link" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+        Sí, eliminar
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Script para pasar la URL al modal -->
+<script>
+  function setEliminarUrl(element) {
+    const url = element.getAttribute('data-url');
+    document.getElementById('eliminar-link').setAttribute('href', url);
+  }
+</script>
+{% endblock %}

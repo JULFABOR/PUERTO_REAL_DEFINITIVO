@@ -1,0 +1,57 @@
+{% extends "home/base.html" %}
+{% load static %}
+
+{% block title %}Registrarse{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh]">
+  <div class="w-full max-w-md bg-white p-8 shadow-md rounded-lg">
+    <h2 class="text-2xl font-bold text-center text-purple-700 mb-6">Crear una cuenta</h2>
+
+    {% if form.errors %}
+      <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+        Por favor corregí los errores en el formulario.
+      </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-5">
+      {% csrf_token %}
+
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+        {{ form.username|as_widget }}
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        {{ form.email|as_widget }}
+      </div>
+
+      <div>
+        <label for="rol" class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+        {{ form.rol|as_widget }}
+      </div>
+
+      <div>
+        <label for="password1" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+        {{ form.password1|as_widget }}
+      </div>
+
+      <div>
+        <label for="password2" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+        {{ form.password2|as_widget }}
+      </div>
+
+      <button type="submit"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+        Registrarme
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-center text-gray-500">
+      ¿Ya tenés cuenta?
+      <a href="{% url 'login' %}" class="text-purple-600 hover:underline">Iniciar sesión</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

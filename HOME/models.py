@@ -39,7 +39,7 @@ class Productos_Descartados(models.Model):
     def __str__(self):
         return f"{self.producto} - {self.cantidad} vencido(s)"
 class Clientes(models.Model):
-    user_cliente = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_cliente = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cliente')
     id_cliente = models.BigAutoField(primary_key=True)
     dni_cliente = models.CharField(max_length=50)
     telefono_cliente = models.CharField(max_length=50)
@@ -47,9 +47,9 @@ class Clientes(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 class Empleados(models.Model):
-    user_empleado = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_empleado = models.OneToOneField(User, on_delete=models.CASCADE, related_name='empleado')
     id_empleado = models.BigAutoField(primary_key=True)
-    dni_empleado = models.CharField(50)
+    dni_empleado = models.CharField(max_length=50)
     telefono_empleado = models.CharField(max_length=50)
     fecha_baja_empleado = models.DateTimeField()
     DELETE_Emple = models.BooleanField(default=False)
@@ -68,12 +68,19 @@ class Tipos_Movimientos(models.Model):
     DELETE_TM = models.BooleanField(default=False)
     def __str__(self):
         return self.nombre_movimiento
-class Estados(models.Model):
-    id_estado = models.AutoField(primary_key=True)
-    nombre_estado = models.CharField(max_length=50)
-    DELETE_Estado = models.BooleanField(default=False)
+class Estados(models.TextChoices):
+    PENDIENTE = 'pendiente', 'Pendiente'
+    ENTREGADA = 'entregada', 'Entregada'
+    CANCELADA = 'cancelada', 'Cancelada'
+    PENDIENTE_PAGO = 'pendiente_pago', 'Pendiente de Pago'
+    CERRADA = 'cerrada', 'Cerrada'
+    ANULADA = 'anulada', 'Anulada'
+    ACTIVO = 'activo', 'Activo'
+    INACTIVO = 'inactivo', 'Inactivo'
+    VENCIDA = 'vencida', 'Vencida'
+    BAJA = 'baja', 'Baja'
     def __str__(self):
-        return self.nombre_estado
+        return self.value
 #Control de Stocks 
 class Stocks(models.Model):
     id_stock = models.BigAutoField(primary_key=True)
@@ -110,7 +117,7 @@ class Cajas(models.Model):
     monto_teorico_caja = models.DecimalField(max_digits=10, decimal_places=2)
     diferencia_caja = models.DecimalField(max_digits=10, decimal_places=2)
     observaciones_caja = models.CharField(max_length=200)
-    estado_caja = models.ForeignKey(Estados,on_delete=models.CASCADE)
+    estado_caja = models.CharField(max_length=20, choices=Estados.choices, default=Estados.CERRADA)
     DELETE_Caja = models.BooleanField(default=False)
     def __str__(self):
         return self.monto_apertura_caja
@@ -140,7 +147,7 @@ class Proveedores(models.Model):
     telefono_proveedor = models.CharField(max_length=20)
     cuit_proveedor = models.CharField(max_length=100)
     correo_proveedor = models.EmailField(max_length=100)
-    estado_proveedor = models.ForeignKey(Estados,on_delete=models.CASCADE)
+    estado_proveedor = models.CharField(max_length=20, choices=Estados.choices, default=Estados.ACTIVO)
     DELETE_Prov = models.BooleanField(default=False)
     def __str__(self):
         return self.nombre_proveedor
@@ -148,21 +155,24 @@ class Compras(models.Model):
     id_compra = models.BigAutoField(primary_key =True)
     fecha_compra = models.DateTimeField(auto_now_add=True)
     total_compra = models.DecimalField(max_digits=10, decimal_places=2)
-    proveedor_compra = models.ForeignKey(Proveedores, on_delete=models.CASCADE)
-    estado_compra = models.ForeignKey(Estados, on_delete=models.CASCADE)
+    proveedor_compra = models.ForeignKey(Proveedores, on_delete=models.PROTECT)
+    estado_compra = models.CharField(max_length=20, choices=Estados.choices, default=Estados.PENDIENTE)
     DELETE_Comp = models.BooleanField(default=False)
     def __str__(self):
-        return self.fecha_compra
+        return f"Compra #{self.id_compra} - {self.fecha_compra.strftime('%Y-%m-%d %H:%M:%S')} - {self.proveedor_compra.nombre_proveedor}"
 class Detalle_Compras(models.Model):
     id_det_comp = models.BigAutoField(primary_key=True)
     precio_unidad_det_comp = models.DecimalField(max_digits=10, decimal_places=2)
-    cant_det_comp = models.IntegerField()
+    cant_det_comp = models.PositiveIntegerField()
     subtotal_det_comp = models.DecimalField(max_digits=10, decimal_places=2)
-    producto_dt_comp = models.ForeignKey(Productos, on_delete=models.CASCADE)
-    compra_dt_comp = models.ForeignKey(Compras, on_delete=models.CASCADE)
+    producto_dt_comp = models.ForeignKey(Productos, on_delete=models.PROTECT)
+    compra_dt_comp = models.ForeignKey(Compras, on_delete=models.CASCADE, related_name='detalles')
     DELETE_Det_Comp = models.BooleanField(default=False)
+    def save(self, *args, **kwargs):
+        self.subtotal_det_comp = self.precio_unidad_det_comp * self.cant_det_comp
+        super().save(*args, **kwargs)
     def __str__(self):
-        return self.subtotal_det_comp
+        return f"Detalle Compra #{self.id_det_comp} - Producto: {self.producto_dt_comp.nombre_producto} - Cantidad: {self.cant_det_comp} - Subtotal: {self.subtotal_det_comp}"
 class Proveedores_Productos(models.Model):
     id_prov_x_prod = models.BigAutoField(primary_key=True)
     precio_unitario_prov_x_prod = models.IntegerField()
@@ -216,7 +226,7 @@ class Cupones_Descuento(models.Model):
     descripcion_cupon_desc = models.CharField(max_length=300)
     fecha_inicio_cupon_desc = models.DateField()
     fecha_vencimiento_cupon_desc = models.DateField()
-    estado_cupon_desc = models.ForeignKey(Estados, on_delete=models.CASCADE)
+    estado_cupon_desc = models.CharField(max_length=20, choices=Estados.choices, default=Estados.ACTIVO)
     DELETE_Cupon_Desc = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.nombre_cupon_desc} ({self.descuento_porcentaje_cupon_desc}%)"
@@ -258,7 +268,7 @@ class Ventas(models.Model):
     observaciones_venta = models.CharField(max_length=200)
     cliente_venta = models.ForeignKey(Clientes, on_delete= models.CASCADE)
     empleado_venta = models.ForeignKey(Empleados, on_delete=models.CASCADE)
-    estado_venta = models.ForeignKey(Estados, on_delete=models.CASCADE)
+    estado_venta = models.CharField(max_length=20, choices=Estados.choices, default=Estados.ACTIVO)
     caja_venta = models.ForeignKey(Cajas,on_delete=models.CASCADE)
     DELETE_Vent = models.BooleanField(default=False)
     def __str__(self):
