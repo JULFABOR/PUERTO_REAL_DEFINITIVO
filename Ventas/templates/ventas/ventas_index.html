@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Ventas</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <!-- Puedes agregar Bootstrap para los modales si quieres -->
+</head>
+<body>
+    <header>
+        <h1>Ventas</h1>
+        <nav>
+            <a href="/" >Home</a>
+            <button onclick="mostrarCrearVenta()" >Nueva Venta</button>
+        </nav>
+    </header>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Acciones</th>
+        </tr>
+        {% for venta in ventas %}
+        <tr>
+            <td>{{ venta.id_venta }}</td>
+            <td>{{ venta.total_venta }}</td>
+            <td>{{ venta.fecha_venta }}</td>
+            <td>{{ venta.cliente_venta }}</td>
+            <td>
+                <button onclick="mostrarEditarVenta({{ venta.id_venta }})">Editar</button>
+                <button onclick="mostrarBorrarVenta({{ venta.id_venta }})">Borrar</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Acciones</th>
+        </tr>
+        {% for venta in ventas %}
+        <tr>
+            <td>{{ venta.id_venta }}</td>
+            <td>{{ venta.total_venta }}</td>
+            <td>{{ venta.fecha_venta }}</td>
+            <td>{{ venta.cliente_venta }}</td>
+            <td>
+                <button onclick="mostrarEditarVenta({{ venta.id_venta }})" style="background:#f39c12; color:#fff; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; margin-right:5px;">Editar</button>
+                <button onclick="mostrarBorrarVenta({{ venta.id_venta }})" style="background:#c0392b; color:#fff; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">Borrar</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+                <button type="submit">Guardar Cambios</button>
+                <button type="button" onclick="cerrarEditarVenta()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Borrar Venta -->
+    <div id="modalBorrarVenta" style="display:none;">
+        <div>
+            <h2>¿Seguro que quieres borrar esta venta?</h2>
+            <form id="formBorrarVenta" method="post">
+                {% csrf_token %}
+                <button type="submit">Sí, borrar</button>
+                <button type="button" onclick="cerrarBorrarVenta()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function mostrarCrearVenta() {
+            document.getElementById('modalCrearVenta').style.display = 'block';
+        }
+        function cerrarCrearVenta() {
+            document.getElementById('modalCrearVenta').style.display = 'none';
+        }
+        function mostrarEditarVenta(id) {
+            document.getElementById('modalEditarVenta').style.display = 'block';
+        }
+        function cerrarEditarVenta() {
+            document.getElementById('modalEditarVenta').style.display = 'none';
+        }
+        function mostrarBorrarVenta(id) {
+            document.getElementById('modalBorrarVenta').style.display = 'block';
+        }
+        function cerrarBorrarVenta() {
+            document.getElementById('modalBorrarVenta').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
